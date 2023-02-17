@@ -13,24 +13,19 @@ let equalSignButton = document.querySelector('.equal-sign');
 
 operatorButtons.forEach((operatorButton) => {
     operatorButton.addEventListener('click', () => {
-        if(tempDigitStorage.length !== 0) {
+        if(!isEmpty(tempDigitStorage)) {
             setOperand(tempDigitStorage);
         }
-    
         switch (operationStorage.length) {
             case 0:
-                console.log(operationStorage);
                 break;
             case 1:
-                console.log(operationStorage);
                 setOperator(operatorButton.value);
                 break;
             case 2:
-                console.log(operationStorage);
                 replaceRecentOperator(operatorButton.value);
                 break;
             case 3:
-                console.log(operationStorage);
                 operate(operationStorage);
                 setOperator(operatorButton.value);
                 break;
@@ -48,16 +43,28 @@ equalSignButton.addEventListener('click', () => {
     }
 })
 
+decimalButton.addEventListener('click', () => {
+    let isDecimalAlreadyPresent = !!tempDigitStorage.find(decimal => decimal === '.');
+    if (isDecimalAlreadyPresent) {
+        return;
+    } else if (isEmpty(tempDigitStorage)) {
+        tempDigitStorage.push(0,decimalButton.value);
+        displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
+    } else {
+        tempDigitStorage.push(decimalButton.value);
+        displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
+    }
+    
+})
+
 nonZeroButtons.forEach((nonZeroButton) => {
     nonZeroButton.addEventListener('click', () => {
         addDigit(nonZeroButton.value);
-        displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
         
     });
 });
 zeroButton.addEventListener('click', () => {
     addDigit(zeroButton.value);
-    displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
     
 });
 clearButton.addEventListener('click', () => {
@@ -82,6 +89,9 @@ function clearTempStorage() {
 function clearOperationStorage() {
     operationStorage = [];
 }
+function isEmpty(array) {
+    return array.length === 0;
+}
 function replaceRecentOperator(operator) {
     if(typeof operationStorage[operationStorage.length-1] === 'string') {
         operationStorage.pop();
@@ -89,7 +99,8 @@ function replaceRecentOperator(operator) {
     operationStorage.push(operator);
 }
 function addDigit(num) {
-    tempDigitStorage.push(parseInt(num));
+    tempDigitStorage.push(num);
+    displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
 }
 function setOperand(array) {
     let updatedNumber = array.reduce((accumulator, currentDigit, currentIndex) => {
