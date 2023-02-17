@@ -11,12 +11,10 @@ let decimalButton = document.querySelector('.decimal');
 let clearButton = document.querySelector('.clear');
 let equalSignButton = document.querySelector('.equal-sign');
 
-
-
 operatorButtons.forEach((operatorButton) => {
     operatorButton.addEventListener('click', () => {
         if(tempDigitStorage.length !== 0) {
-            setOperand();
+            setOperand(tempDigitStorage);
         }
     
         switch (operationStorage.length) {
@@ -42,7 +40,7 @@ operatorButtons.forEach((operatorButton) => {
 });
 
 equalSignButton.addEventListener('click', () => {
-    setOperand();
+    setOperand(tempDigitStorage);
     if(operationStorage.length !== 3) {
         return;
     } else {
@@ -50,25 +48,28 @@ equalSignButton.addEventListener('click', () => {
     }
 })
 
-
 nonZeroButtons.forEach((nonZeroButton) => {
     nonZeroButton.addEventListener('click', () => {
         addDigit(nonZeroButton.value);
-        updateTempNumber(tempDigitStorage);
+        displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
+        
     });
 });
 zeroButton.addEventListener('click', () => {
     addDigit(zeroButton.value);
-    updateTempNumber(tempDigitStorage);
+    displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
+    
 });
 clearButton.addEventListener('click', () => {
     clearAll();
 });
 
-
 function displayValue(num) {
     screenDisplay.value = num;
 };
+function showArrayOfDigitsAsNumber(array) {
+    return array.join('');
+}
 function clearAll() {
     clearTempStorage();
     clearOperationStorage();
@@ -90,8 +91,7 @@ function replaceRecentOperator(operator) {
 function addDigit(num) {
     tempDigitStorage.push(parseInt(num));
 }
-function updateTempNumber(array) {
-
+function setOperand(array) {
     let updatedNumber = array.reduce((accumulator, currentDigit, currentIndex) => {
         if (currentDigit === 0) {
             return accumulator;
@@ -99,11 +99,8 @@ function updateTempNumber(array) {
             return accumulator + currentDigit * (10**(array.length-currentIndex-1));
         };
     },0);
-    displayValue(updatedNumber);
-    return updatedNumber;
-}
-function setOperand() {
-    operationStorage.push(updateTempNumber(tempDigitStorage));
+    
+    operationStorage.push(updatedNumber);
 }
 function setOperator(operator) {
     operationStorage.push(operator);
