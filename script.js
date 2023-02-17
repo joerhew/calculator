@@ -62,9 +62,9 @@ clearButton.addEventListener('click', () => {
 });
 
 function displayValue(obj) {
-    if (typeof obj === 'number') {
+    if (isNumber(obj)) {
         screenDisplay.value = obj;
-    } else if (obj.constructor === Array) {
+    } else if (isArray(obj)) {
         screenDisplay.value = obj.join('');
     }  
 };
@@ -83,8 +83,14 @@ function clearOperationStorage() {
 function isEmpty(array) {
     return array.length === 0;
 }
+function isNumber(obj) {
+    return typeof obj === 'number';
+}
+function isArray(obj) {
+    return obj.constructor === Array;
+}
 function replaceRecentOperator(operator) {
-    if(typeof operationStorage[operationStorage.length-1] === 'string') {
+    if(typeof operationStorage.at(-1) === 'string') {
         operationStorage.pop();
     }
     operationStorage.push(operator);
@@ -97,6 +103,9 @@ function addDigit(num) {
             tempDigitStorage.shift();
             tempDigitStorage.unshift(num);
         }
+    } else if (isNumber(operationStorage.at(-1))) {
+        clearOperationStorage();
+        tempDigitStorage.push(num);
     } else {
         tempDigitStorage.push(num);
     }
