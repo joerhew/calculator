@@ -44,17 +44,7 @@ equalSignButton.addEventListener('click', () => {
 })
 
 decimalButton.addEventListener('click', () => {
-    let isDecimalAlreadyPresent = !!tempDigitStorage.find(decimal => decimal === '.');
-    if (isDecimalAlreadyPresent) {
-        return;
-    } else if (isEmpty(tempDigitStorage)) {
-        tempDigitStorage.push(0,decimalButton.value);
-        displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
-    } else {
-        tempDigitStorage.push(decimalButton.value);
-        displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
-    }
-    
+    addDecimal();
 })
 
 nonZeroButtons.forEach((nonZeroButton) => {
@@ -71,12 +61,13 @@ clearButton.addEventListener('click', () => {
     clearAll();
 });
 
-function displayValue(num) {
-    screenDisplay.value = num;
+function displayValue(obj) {
+    if (typeof obj === 'number') {
+        screenDisplay.value = obj;
+    } else if (obj.constructor === Array) {
+        screenDisplay.value = obj.join('');
+    }  
 };
-function showArrayOfDigitsAsNumber(array) {
-    return array.join('');
-}
 function clearAll() {
     clearTempStorage();
     clearOperationStorage();
@@ -99,8 +90,29 @@ function replaceRecentOperator(operator) {
     operationStorage.push(operator);
 }
 function addDigit(num) {
-    tempDigitStorage.push(num);
-    displayValue(showArrayOfDigitsAsNumber(tempDigitStorage));
+    if (tempDigitStorage.length === 1 && tempDigitStorage[0] === '0') {
+        if (num === '0') {
+            return;
+        } else {
+            tempDigitStorage.shift();
+            tempDigitStorage.unshift(num);
+        }
+    } else {
+        tempDigitStorage.push(num);
+    }
+    displayValue(tempDigitStorage)
+}
+function addDecimal() {
+    let isDecimalAlreadyPresent = !!tempDigitStorage.find(decimal => decimal === '.');
+    if (isDecimalAlreadyPresent) {
+        return;
+    } else if (isEmpty(tempDigitStorage)) {
+        tempDigitStorage.push(0,decimalButton.value);
+        displayValue(tempDigitStorage);
+    } else {
+        tempDigitStorage.push(decimalButton.value);
+        displayValue(tempDigitStorage);
+    }
 }
 function setOperand(array) {
     let updatedNumber = array.reduce((accumulator, currentDigit, currentIndex) => {
