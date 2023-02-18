@@ -44,7 +44,7 @@ equalSignButton.addEventListener('click', () => {
 })
 
 decimalButton.addEventListener('click', () => {
-    addDecimal();
+    addDecimal(tempDigitStorage, decimalButton.value);
 })
 
 nonZeroButtons.forEach((nonZeroButton) => {
@@ -111,28 +111,46 @@ function addDigit(num) {
     }
     displayValue(tempDigitStorage)
 }
-function addDecimal() {
-    let isDecimalAlreadyPresent = !!tempDigitStorage.find(decimal => decimal === '.');
-    if (isDecimalAlreadyPresent) {
+function addDecimal(array, value) {
+    if (isDecimalPresent(array)) {
         return;
-    } else if (isEmpty(tempDigitStorage)) {
-        tempDigitStorage.push(0,decimalButton.value);
-        displayValue(tempDigitStorage);
+    } else if (isEmpty(array)) {
+        array.push(0,value);
+        displayValue(array);
     } else {
-        tempDigitStorage.push(decimalButton.value);
-        displayValue(tempDigitStorage);
+        array.push(value);
+        displayValue(array);
     }
 }
+function isDecimalPresent(array) {
+    return !!array.find(decimal => decimal === '.');
+}
 function setOperand(array) {
-    let updatedNumber = array.reduce((accumulator, currentDigit, currentIndex) => {
-        if (currentDigit === 0) {
-            return accumulator;
-        } else {
-            return accumulator + currentDigit * (10**(array.length-currentIndex-1));
-        };
-    },0);
-    
-    operationStorage.push(updatedNumber);
+    // Need to be able to handle decimal points
+    let numBeforeDecimal;
+
+    if(!isDecimalPresent(array)) {
+        numBeforeDecimal = parseInt(array.join(''));
+        console.log(numBeforeDecimal);
+        return operationStorage.push(numBeforeDecimal);
+        
+    } else {
+        let arrAfterDecimal;
+        let numAfterDecimal;
+        
+        function findDecimalIndex(array) {
+            return array.findIndex((element) => element === '.');
+        }
+        function turnArrIntoNum(array) {
+            return parseInt(array.join(''));
+        }
+
+        numBeforeDecimal = turnArrIntoNum(array.slice(0,findDecimalIndex(array)));
+        arrAfterDecimal = array.slice(findDecimalIndex(array)+1,array.length);
+        numAfterDecimal = turnArrIntoNum(arrAfterDecimal)/(10**arrAfterDecimal.length);
+        
+        return operationStorage.push(numBeforeDecimal+numAfterDecimal);
+    }
 }
 function setOperator(operator) {
     operationStorage.push(operator);
