@@ -1,8 +1,13 @@
 const START_VALUE = 0;
+const DISPLAY_DIVISION_BY_ZERO = 'Nice try!';
+const DISPLAY_TOO_MANY_DIGITS = 'Too many digits...';
+const DEFAULT_FONT_SIZE = '100px'
+const MAX_DIGITS = 18
 
 let tempDigitStorage = [];
 let operationStorage = [];
 
+let screenDisplayContainer = document.querySelector('.calculator-screen-container');
 let screenDisplay = document.querySelector('.calculator-screen');
 let operatorButtons = document.querySelectorAll('.operator');
 let nonZeroButtons = document.querySelectorAll('.non-zero');
@@ -10,6 +15,7 @@ let zeroButton = document.querySelector('.zero');
 let decimalButton = document.querySelector('.decimal');
 let clearButton = document.querySelector('.clear');
 let equalSignButton = document.querySelector('.equal-sign');
+
 
 operatorButtons.forEach((operatorButton) => {
     operatorButton.addEventListener('click', () => {
@@ -62,12 +68,40 @@ clearButton.addEventListener('click', () => {
 });
 
 function displayValue(obj) {
-    if (isNumber(obj)) {
-        screenDisplay.value = obj;
-    } else if (isArray(obj)) {
-        screenDisplay.value = obj.join('');
-    }  
+    let displayValueText;
+    
+    if (isArray(obj)) {
+        displayValueText = obj.join('');
+    } else {
+        displayValueText = obj;    
+    };
+
+    if (displayValueText.length > MAX_DIGITS && displayValueText !== DISPLAY_DIVISION_BY_ZERO) {
+        screenDisplay.innerHTML = DISPLAY_TOO_MANY_DIGITS;
+    } else {
+        screenDisplay.innerHTML = displayValueText;
+        processDisplay();
+    }
+    
 };
+
+function resizeDisplayFont() {
+    let fontSize = window.getComputedStyle(screenDisplay).fontSize;
+    screenDisplay.style.fontSize = (parseFloat(fontSize) - 1) + 'px';
+
+    if (screenDisplay.clientHeight >= screenDisplayContainer.clientHeight) {
+        resizeDisplayFont();
+    } 
+}; 
+
+screenDisplay.addEventListener('change', processDisplay);
+
+function processDisplay() {
+    screenDisplay.style.fontSize = DEFAULT_FONT_SIZE;
+    resizeDisplayFont();
+}  
+
+
 function clearAll() {
     clearTempStorage();
     clearOperationStorage();
@@ -126,7 +160,6 @@ function isDecimalPresent(array) {
     return !!array.find(decimal => decimal === '.');
 }
 function setOperand(array) {
-    // Need to be able to handle decimal points
     let numBeforeDecimal;
 
     if(!isDecimalPresent(array)) {
@@ -179,6 +212,10 @@ function operate(array) {
             updateResultWith(operation);
             break;
         case '/':
+            if (array[2] === 0) {
+                displayValue(DISPLAY_DIVISION_BY_ZERO);
+                break;
+            }
             operation = array[0] / array[2];
             updateResultWith(operation);
             break;
