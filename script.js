@@ -1,8 +1,8 @@
 const START_VALUE = 0;
 const DISPLAY_DIVISION_BY_ZERO = 'Nice try!';
 const DISPLAY_TOO_MANY_DIGITS = 'Too many digits...';
-const DEFAULT_FONT_SIZE = '100px'
-const MAX_DIGITS = 18
+const DEFAULT_FONT_SIZE = '100px';
+const MAX_DIGITS = 18;
 
 let tempDigitStorage = [];
 let operationStorage = [];
@@ -16,37 +16,18 @@ let decimalButton = document.querySelector('.decimal');
 let clearButton = document.querySelector('.clear');
 let equalSignButton = document.querySelector('.equal-sign');
 
+// Include a backspace functionality - delete the last entered digit or operator
+
+window.addEventListener('keydown', enterKey);
 
 operatorButtons.forEach((operatorButton) => {
     operatorButton.addEventListener('click', () => {
-        if(!isEmpty(tempDigitStorage)) {
-            setOperand(tempDigitStorage);
-        }
-        switch (operationStorage.length) {
-            case 0:
-                break;
-            case 1:
-                setOperator(operatorButton.value);
-                break;
-            case 2:
-                replaceRecentOperator(operatorButton.value);
-                break;
-            case 3:
-                operate(operationStorage);
-                setOperator(operatorButton.value);
-                break;
-        }
-        console.log(operationStorage);
+        addOperator(operatorButton.value);
     })
 });
 
 equalSignButton.addEventListener('click', () => {
-    setOperand(tempDigitStorage);
-    if(operationStorage.length !== 3) {
-        return;
-    } else {
-        operate(operationStorage);
-    }
+    pressEquals();
 })
 
 decimalButton.addEventListener('click', () => {
@@ -56,6 +37,7 @@ decimalButton.addEventListener('click', () => {
 nonZeroButtons.forEach((nonZeroButton) => {
     nonZeroButton.addEventListener('click', () => {
         addDigit(nonZeroButton.value);
+        console.log(nonZeroButton.value);
         
     });
 });
@@ -94,13 +76,10 @@ function resizeDisplayFont() {
     } 
 }; 
 
-screenDisplay.addEventListener('change', processDisplay);
-
 function processDisplay() {
     screenDisplay.style.fontSize = DEFAULT_FONT_SIZE;
     resizeDisplayFont();
 }  
-
 
 function clearAll() {
     clearTempStorage();
@@ -162,6 +141,10 @@ function isDecimalPresent(array) {
 function setOperand(array) {
     let numBeforeDecimal;
 
+    if(array.length === 0 || isNumber(operationStorage.at(-1))) {
+        return;
+    }
+
     if(!isDecimalPresent(array)) {
         numBeforeDecimal = parseInt(array.join(''));
         console.log(numBeforeDecimal);
@@ -185,9 +168,37 @@ function setOperand(array) {
         return operationStorage.push(numBeforeDecimal+numAfterDecimal);
     }
 }
+function addOperator(val) {
+    if(!isEmpty(tempDigitStorage)) {
+        setOperand(tempDigitStorage);
+    }
+    switch (operationStorage.length) {
+        case 0:
+            break;
+        case 1:
+            setOperator(val);
+            break;
+        case 2:
+            replaceRecentOperator(val);
+            break;
+        case 3:
+            operate(operationStorage);
+            setOperator(val);
+            break;
+    }
+    console.log(operationStorage);
+}
 function setOperator(operator) {
     operationStorage.push(operator);
     clearTempStorage();
+}
+function pressEquals() {
+    setOperand(tempDigitStorage);
+    if(operationStorage.length !== 3) {
+        return;
+    } else {
+        operate(operationStorage);
+    }
 }
 function operate(array) {
     let result;
@@ -218,6 +229,33 @@ function operate(array) {
             }
             operation = array[0] / array[2];
             updateResultWith(operation);
+            break;
+    }
+}
+function enterKey(e) {
+    let keyPressed = e.key;
+    switch (keyPressed) {
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '0':
+            addDigit(keyPressed);
+            console.log(keyPressed);
+            break;
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+            addOperator(keyPressed); 
+            break;
+        case '=':
+            pressEquals();
             break;
     }
 }
